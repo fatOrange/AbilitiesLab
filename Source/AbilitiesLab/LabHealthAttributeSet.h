@@ -22,7 +22,7 @@ public:
 	ULabHealthAttributeSet();
 
 	// Current health
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Health)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_Health, meta = (HideFromModifiers))
 	FGameplayAttributeData Health;
 
 
@@ -30,11 +30,15 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, ReplicatedUsing = OnRep_MaxHealth)
 	FGameplayAttributeData MaxHealth;
 
-
+	// Damage value calculated during a GE. Meta attribute.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FGameplayAttributeData Damage;
+	
 	// 使用 ATTRIBUTE_ACCESSORS_BASIC 生成访问器
 	ATTRIBUTE_ACCESSORS_BASIC(ULabHealthAttributeSet, Health)
 	ATTRIBUTE_ACCESSORS_BASIC(ULabHealthAttributeSet, MaxHealth)
-	
+	ATTRIBUTE_ACCESSORS_BASIC(ULabHealthAttributeSet, Damage)
+
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
 	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue) override;
 	UFUNCTION()
@@ -45,4 +49,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FAttributeChangedEvent OnHealthChanged;
+
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
+
+
 };

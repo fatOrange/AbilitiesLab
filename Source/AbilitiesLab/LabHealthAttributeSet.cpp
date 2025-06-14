@@ -4,7 +4,7 @@
 #include "LabHealthAttributeSet.h"
 #include "Net/UnrealNetwork.h"
 #include <algorithm>
-
+#include "GameplayEffectExtension.h"
 
 ULabHealthAttributeSet::ULabHealthAttributeSet()
 {
@@ -65,4 +65,26 @@ void ULabHealthAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldVa
 	// When max health changes, broadcast OnHealthChanged so that health bars will update
 	const float CurrentHealth = GetHealth();
 	OnHealthChanged.Broadcast(this, CurrentHealth, CurrentHealth);
+}
+
+void ULabHealthAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+	if (Data.EvaluatedData.Attribute == GetDamageAttribute())
+	{
+		// Convert into -Health and then clamp
+		const float DamageValue = GetDamage();
+		const float OldHealthValue = GetHealth();
+		const float MaxHealthValue = GetMaxHealth();
+		const float NewHealthValue = FMath::Clamp(OldHealthValue - DamageValue, 0.0f, MaxHealthValue);
+
+		if (OldHealthValue != NewHealthValue)
+		{
+			// Set the new health after clamping to min-max
+			SetHealth(NewHealthValue);
+		}
+
+		// Clear the meta attribute that temporarily held damage
+		SetDamage(0.0f);
+	}
 }
