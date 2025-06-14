@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "LabAbilitySystemComponent.h"
+#include "AbilitySystemInterface.h"
+#include "LabHealthAttributeSet.h"
 #include "Logging/LogMacros.h"
 #include "AbilitiesLabCharacter.generated.h"
 
@@ -16,7 +19,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class AAbilitiesLabCharacter : public ACharacter
+class AAbilitiesLabCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -46,7 +49,11 @@ class AAbilitiesLabCharacter : public ACharacter
 
 public:
 	AAbilitiesLabCharacter();
-	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilities)
+	TObjectPtr<class ULabAbilitySystemComponent> LabAbilitySystemComp;
+
+	UPROPERTY()
+	TObjectPtr<class ULabHealthAttributeSet> HealthSet;
 
 protected:
 
@@ -63,10 +70,14 @@ protected:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void BeginPlay() override;
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
 };
 

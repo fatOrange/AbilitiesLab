@@ -52,6 +52,9 @@ AAbilitiesLabCharacter::AAbilitiesLabCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	LabAbilitySystemComp = CreateDefaultSubobject<ULabAbilitySystemComponent>(TEXT("ASC"));
+	HealthSet = CreateDefaultSubobject<ULabHealthAttributeSet>(TEXT("HealthSet"));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -92,6 +95,13 @@ void AAbilitiesLabCharacter::SetupPlayerInputComponent(UInputComponent* PlayerIn
 	}
 }
 
+void AAbilitiesLabCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	LabAbilitySystemComp->InitAbilityActorInfo(this, this);
+
+}
+
 void AAbilitiesLabCharacter::Move(const FInputActionValue& Value)
 {
 	// input is a Vector2D
@@ -126,4 +136,9 @@ void AAbilitiesLabCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X);
 		AddControllerPitchInput(LookAxisVector.Y);
 	}
+}
+
+UAbilitySystemComponent* AAbilitiesLabCharacter::GetAbilitySystemComponent() const
+{
+	return LabAbilitySystemComp;
 }
