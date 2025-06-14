@@ -100,6 +100,12 @@ void AAbilitiesLabCharacter::BeginPlay()
 	Super::BeginPlay();
 	LabAbilitySystemComp->InitAbilityActorInfo(this, this);
 
+	FOnGameplayAttributeValueChange& AttributeDelegate = LabAbilitySystemComp->GetGameplayAttributeValueChangeDelegate(ULabHealthAttributeSet::GetHealthAttribute());
+	AttributeDelegate.AddLambda([](const FOnAttributeChangeData& Data)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Health changed: %.2f -> %.2f"), Data.OldValue, Data.NewValue);
+		});
+
 }
 
 void AAbilitiesLabCharacter::Move(const FInputActionValue& Value)

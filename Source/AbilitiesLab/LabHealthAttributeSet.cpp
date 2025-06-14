@@ -32,3 +32,37 @@ void ULabHealthAttributeSet::GetLifetimeReplicatedProps(TArray< FLifetimePropert
 	DOREPLIFETIME(ULabHealthAttributeSet, Health);
 	DOREPLIFETIME(ULabHealthAttributeSet, MaxHealth);
 }
+
+void ULabHealthAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue)
+{
+	Super::PostAttributeChange(Attribute, OldValue, NewValue);
+	UE_LOG(LogTemp, Warning, TEXT("PostChange: Attribute '%s' changed %.2f -> %.2f"), *Attribute.AttributeName, OldValue, NewValue);
+
+	if (Attribute == GetHealthAttribute())
+	{
+		OnHealthChanged.Broadcast(this, OldValue, NewValue);
+	}
+	else if (Attribute == GetMaxHealthAttribute())
+	{
+		// When max health changes, broadcast OnHealthChanged so that health bars will update
+		const float CurrentHealth = GetHealth();
+		OnHealthChanged.Broadcast(this, CurrentHealth, CurrentHealth);
+	}
+}
+
+void ULabHealthAttributeSet::OnRep_Health(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULabHealthAttributeSet, Health, OldValue);
+	const float OldHealth = OldValue.GetCurrentValue();
+	const float NewHealth = GetHealth();
+	OnHealthChanged.Broadcast(this, OldHealth, NewHealth);
+}
+
+void ULabHealthAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldValue)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(ULabHealthAttributeSet, MaxHealth, OldValue);
+
+	// When max health changes, broadcast OnHealthChanged so that health bars will update
+	const float CurrentHealth = GetHealth();
+	OnHealthChanged.Broadcast(this, CurrentHealth, CurrentHealth);
+}
