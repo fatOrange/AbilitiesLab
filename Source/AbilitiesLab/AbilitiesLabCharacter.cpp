@@ -76,6 +76,11 @@ void AAbilitiesLabCharacter::NotifyControllerChanged()
 
 void AAbilitiesLabCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
+
+	const FTopLevelAssetPath EnumName("/Script/AbilitiesLab.EMyAbilitySlotsEnum");
+	const FGameplayAbilityInputBinds Binds("ConfirmTargeting", "CancelTargeting", EnumName);
+		LabAbilitySystemComp->BindAbilityActivationToInputComponent(PlayerInputComponent, Binds);
+
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
